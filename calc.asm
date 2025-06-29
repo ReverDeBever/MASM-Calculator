@@ -364,11 +364,59 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             cmp al, '+'
             je do_op
             cmp al, '-'
-            je do_op
+            je check_minus_sign
             cmp al, '*'
             je do_op
             cmp al, '/'
             je do_op
+
+            sub al, '0'
+            movzx ecx, al
+            imul ebx, ebx, 10
+            add ebx, ecx
+            inc esi
+            jmp eval_loop
+
+        check_minus_sign:
+            ; Check if this is a negative number start
+            cmp esi, offset editBuffer  ; At the very beginning?
+            je start_negative
+            mov bl, [esi-1]
+            cmp bl, '+'     ; If previous char is operator
+            je start_negative
+            cmp bl, '-'     
+            je start_negative
+            cmp bl, '*'
+            je start_negative
+            cmp bl, '/'
+            je start_negative
+
+            jmp do_op       ; Else it's a subtraction
+
+start_negative:
+    inc esi
+    xor ebx, ebx
+parse_neg_loop:
+    mov al, [esi]
+    cmp al, 0
+    je end_neg_parse
+    cmp al, '+'
+    je end_neg_parse
+    cmp al, '-'
+    je end_neg_parse
+    cmp al, '*'
+    je end_neg_parse
+    cmp al, '/'
+    je end_neg_parse
+    sub al, '0'
+    movzx ecx, al
+    imul ebx, ebx, 10
+    add ebx, ecx
+    inc esi
+    jmp parse_neg_loop
+end_neg_parse:
+    neg ebx
+    jmp eval_loop
 
             sub al, '0'
             movzx ecx, al
