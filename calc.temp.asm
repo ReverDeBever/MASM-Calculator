@@ -59,6 +59,8 @@ WndProc  proto :DWORD,:DWORD,:DWORD,:DWORD
     hInsertBtnC HWND ?
 
     hOutputEdit HWND ?
+    finalResult DWORD ?
+    resultBuffer db 16 dup(?)
 
 .data
     szEdit      db "edit", 0
@@ -95,12 +97,14 @@ WndProc  proto :DWORD,:DWORD,:DWORD,:DWORD
     symboolP    db "+", 0
     symboolK    db "*", 0
     symboolD    db "/", 0
+    delendoor0  db "Je hebt gedeeld door 0, dat kan niet!", 0
     symboolI    db "=", 0
 
     actionB     db "C", 0
     actionC     db "Ce", 0
 
     msgTitle    db "Info", 0
+    msgError    db "Error", 0
     editBuffer  db 256 dup(0)
 
 .code
@@ -328,10 +332,6 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             invoke GetWindowText, hEdit, addr editBuffer, 255
             invoke lstrcat, addr editBuffer, addr symboolD
             invoke SetWindowText, hEdit, addr editBuffer
-        .elseif wParam == ID_IBTN
-            invoke GetWindowText, hEdit, addr editBuffer, 255
-            invoke lstrcat, addr editBuffer, addr symboolI
-            invoke SetWindowText, hEdit, addr editBuffer
         .elseif wParam == ID_BBTN
             invoke GetWindowText, hEdit, addr editBuffer, 255
             invoke lstrlen, addr editBuffer
@@ -340,10 +340,138 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                 mov byte ptr [editBuffer+eax], 0
                 invoke SetWindowText, hEdit, addr editBuffer
             .endif
-
         .elseif wParam == ID_CBTN
             mov byte ptr [editBuffer], 0
             invoke SetWindowText, hEdit, addr editBuffer
+
+        .elseif wParam == ID_IBTN
+            invoke GetWindowText, hEdit, addr editBuffer, 255
+            invoke lstrlen, addr editBuffer
+            test eax, eax
+            jz end_if        ; skip empty input
+
+            xor eax, eax
+            mov finalResult, eax
+            xor ebx, ebx         ; current number
+            lea esi, editBuffer
+            mov dl, '+'          ; default operator
+
+        eval_loop:
+            mov al, [esi]
+            cmp al, 0
+            je eval_done
+
+            cmp al, '+'
+            je do_op
+            cmp al, '-'
+            je do_op
+            cmp al, '*'
+            je do_op
+            cmp al, '/'
+            je do_op
+
+            sub al, '0'
+            movzx ecx, al
+            imul ebx, ebx, 10
+            add ebx, ecx
+            inc esi
+            jmp eval_loop
+
+        do_op:
+            cmp dl, '+'
+            jne chk_sub
+            mov eax, finalResult
+            add eax, ebx
+            mov finalResult, eax
+            jmp set_op
+        chk_sub:
+            cmp dl, '-'
+            jne chk_mul
+            mov eax, finalResult
+            sub eax, ebx
+            mov finalResult, eax
+            jmp set_op
+        chk_mul:
+            cmp dl, '*'
+            jne chk_div
+            mov eax, finalResult
+            imul eax, ebx
+            mov finalResult, eax
+            jmp set_op
+        chk_div:
+            cmp ebx, 0
+            je show_div_zero
+            mov eax, finalResult
+            xor edx, edx
+            div ebx
+            mov finalResult, eax
+            jmp set_op
+
+        show_div_zero:
+            invoke MessageBox, NULL, addr delendoor0, addr msgError, MB_OK
+            jmp end_if
+
+        set_op:
+            mov dl, [esi]
+            xor ebx, ebx
+            inc esi
+            jmp eval_loop
+
+        eval_done:
+            cmp dl, '+'
+            jne chk_sub2
+            mov eax, finalResult
+            add eax, ebx
+            mov finalResult, eax
+            jmp to_string
+        chk_sub2:
+            cmp dl, '-'
+            jne chk_mul2
+            mov eax, finalResult
+            sub eax, ebx
+            mov finalResult, eax
+            jmp to_string
+        chk_mul2:
+            cmp dl, '*'
+            jne chk_div2
+            mov eax, finalResult
+            imul eax, ebx
+            mov finalResult, eax
+            jmp to_string
+        chk_div2:
+            cmp ebx, 0
+            je show_div_zero
+            mov eax, finalResult
+            xor edx, edx
+            div ebx
+            mov finalResult, eax
+
+        to_string:
+            mov ecx, finalResult
+            lea edi, resultBuffer
+            add edi, 15
+            mov byte ptr [edi], 0
+            mov ebx, 10
+            test ecx, ecx
+            jnz convert_loop
+            dec edi
+            mov byte ptr [edi], '0'
+            jmp show_result
+
+        convert_loop:
+            mov eax, ecx
+            xor edx, edx
+            div ebx
+            add dl, '0'
+            dec edi
+            mov [edi], dl
+            mov ecx, eax
+            test eax, eax
+            jnz convert_loop
+
+        show_result:
+            invoke SetWindowText, hOutputEdit, edi
+        end_if:
         .endif
 
     .elseif uMsg == WM_DESTROY
