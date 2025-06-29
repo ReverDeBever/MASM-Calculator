@@ -17,3 +17,6 @@ Insert gif or link to demo
 
 I build ```calc.asm``` with MASM Runner Extension by istareatscreens (https://marketplace.visualstudio.com/items?itemName=istareatscreens.masm-runner) in VsCode.
 
+
+The latest build is already made.
+
