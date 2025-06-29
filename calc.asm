@@ -140,7 +140,7 @@ WinMain proc hInst:HINSTANCE, hPrevInst:HINSTANCE, CmdLine:LPSTR, CmdShow:DWORD
     invoke RegisterClassEx, addr wc
     invoke CreateWindowEx, 0, ADDR ClassName, ADDR AppName,
            WS_OVERLAPPED or WS_CAPTION or WS_SYSMENU or WS_MINIMIZEBOX,
-           CW_USEDEFAULT, CW_USEDEFAULT, 400, 450,
+           CW_USEDEFAULT, CW_USEDEFAULT, 400, 400,
            NULL, NULL, hInst, NULL
     mov hwnd, eax
 
@@ -159,91 +159,91 @@ WinMain proc hInst:HINSTANCE, hPrevInst:HINSTANCE, CmdLine:LPSTR, CmdShow:DWORD
     ; Button 1
     invoke CreateWindowEx, 0, addr szButton, addr szInsert1,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           20, 160, 80, 30, hwnd, ID_INSBTN1, hInst, NULL
+           20, 270, 80, 30, hwnd, ID_INSBTN1, hInst, NULL
     mov hInsertBtn1, eax
 
     ; Button 2
     invoke CreateWindowEx, 0, addr szButton, addr szInsert2,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           110, 160, 80, 30, hwnd, ID_INSBTN2, hInst, NULL
+           110, 270, 80, 30, hwnd, ID_INSBTN2, hInst, NULL
     mov hInsertBtn2, eax
 
     ; Button 3
     invoke CreateWindowEx, 0, addr szButton, addr szInsert3,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           200, 160, 80, 30, hwnd, ID_INSBTN3, hInst, NULL
+           200, 270, 80, 30, hwnd, ID_INSBTN3, hInst, NULL
     mov hInsertBtn3, eax
 
     ; Button 4
     invoke CreateWindowEx, 0, addr szButton, addr szInsert4,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           20, 200, 80, 30, hwnd, ID_INSBTN4, hInst, NULL
+           20, 220, 80, 30, hwnd, ID_INSBTN4, hInst, NULL
     mov hInsertBtn4, eax
 
     ; Button 5
     invoke CreateWindowEx, 0, addr szButton, addr szInsert5,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           110, 200, 80, 30, hwnd, ID_INSBTN5, hInst, NULL
+           110, 220, 80, 30, hwnd, ID_INSBTN5, hInst, NULL
     mov hInsertBtn5, eax
 
     ; Button 6
     invoke CreateWindowEx, 0, addr szButton, addr szInsert6,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           200, 200, 80, 30, hwnd, ID_INSBTN6, hInst, NULL
+           200, 220, 80, 30, hwnd, ID_INSBTN6, hInst, NULL
     mov hInsertBtn6, eax
 
     ; Button 7
     invoke CreateWindowEx, 0, addr szButton, addr szInsert7,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           20, 240, 80, 30, hwnd, ID_INSBTN7, hInst, NULL
+           20, 170, 80, 30, hwnd, ID_INSBTN7, hInst, NULL
     mov hInsertBtn7, eax
     
     ; Button 8
     invoke CreateWindowEx, 0, addr szButton, addr szInsert8,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           110, 240, 80, 30, hwnd, ID_INSBTN8, hInst, NULL
+           110, 170, 80, 30, hwnd, ID_INSBTN8, hInst, NULL
     mov hInsertBtn8, eax
 
     ; Button 9
     invoke CreateWindowEx, 0, addr szButton, addr szInsert9,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           200, 240, 80, 30, hwnd, ID_INSBTN9, hInst, NULL
+           200, 170, 80, 30, hwnd, ID_INSBTN9, hInst, NULL
     mov hInsertBtn9, eax
     
     ; Button 0
     invoke CreateWindowEx, 0, addr szButton, addr szInsert0,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           110, 280, 80, 30, hwnd, ID_INSBTN0, hInst, NULL
+           70, 320, 160, 30, hwnd, ID_INSBTN0, hInst, NULL
     mov hInsertBtn0, eax
 
     ; Button M
     invoke CreateWindowEx, 0, addr szButton, addr szInsertM,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           290, 200, 80, 30, hwnd, ID_MBTN, hInst, NULL
+           290, 170, 80, 30, hwnd, ID_MBTN, hInst, NULL
     mov hInsertBtnM, eax
 
     ; Button P
     invoke CreateWindowEx, 0, addr szButton, addr szInsertP,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           290, 240, 80, 30, hwnd, ID_PBTN, hInst, NULL
+           290, 220, 80, 30, hwnd, ID_PBTN, hInst, NULL
     mov hInsertBtnP, eax
 
     ; Button K
     invoke CreateWindowEx, 0, addr szButton, addr szInsertK,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           290, 160, 80, 30, hwnd, ID_KBTN, hInst, NULL
+           290, 120, 80, 30, hwnd, ID_KBTN, hInst, NULL
     mov hInsertBtnK, eax
 
     ; Button D
     invoke CreateWindowEx, 0, addr szButton, addr szInsertD,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           290, 120, 80, 30, hwnd, ID_DBTN, hInst, NULL
+           200, 120, 80, 30, hwnd, ID_DBTN, hInst, NULL
     mov hInsertBtnD, eax
 
     ; Button I
     invoke CreateWindowEx, 0, addr szButton, addr szInsertI,
            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
-           290, 280, 80, 30, hwnd, ID_IBTN, hInst, NULL
+           290, 270, 80, 30, hwnd, ID_IBTN, hInst, NULL
     mov hInsertBtnI, eax
 
     ; Button B
