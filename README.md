@@ -17,6 +17,11 @@ Insert gif or link to demo
 
 I build ```calc.asm``` with MASM Runner Extension by istareatscreens (https://marketplace.visualstudio.com/items?itemName=istareatscreens.masm-runner) in VsCode.
 
+When build, it uses the MASM assembler to translate the ```calc.asm``` source code into an ```.obj``` file. The ```.obj``` file contains machine code, but it's not executable yet.
+
+To make it executable (```.exe``` file), a linker combines the ```.obj``` file with other needer code like system binaries or startup code to produce the final ```.exe``` file.
+
+The extension I used runs both the assembler and linker together.
 
 The latest build is already made.
 
