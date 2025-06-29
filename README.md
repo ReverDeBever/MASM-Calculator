@@ -15,5 +15,5 @@ Insert gif or link to demo
 
 ## Buld
 
-I build ```calc.asm ``` with MASM Runner Extension by istareatscreens (https://marketplace.visualstudio.com/items?itemName=istareatscreens.masm-runner) in VsCode.
+I build ```calc.asm``` with MASM Runner Extension by istareatscreens (https://marketplace.visualstudio.com/items?itemName=istareatscreens.masm-runner) in VsCode.
 
