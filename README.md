@@ -11,7 +11,7 @@ MASM is a low-level programming tool that lets you write instructions very close
 
 ## Demo
 
-Insert gif or link to demo
+
 
 ## Buld
 
