@@ -1,4 +1,4 @@
-; File: ReverMachine.asm
+; File: gui.asm (MASM GUI with multiple Insert Buttons)
 
 .386
 .model flat, stdcall
@@ -357,140 +357,140 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             lea esi, editBuffer
             mov dl, '+'          ; default operator
 
-            eval_loop:
-                mov al, [esi]
-                cmp al, 0
-                je eval_done
+        eval_loop:
+            mov al, [esi]
+            cmp al, 0
+            je eval_done
 
-                cmp al, '+'
-                je do_op
-                cmp al, '-'
-                je do_op
-                cmp al, '*'
-                je do_op
-                cmp al, '/'
-                je do_op
+            cmp al, '+'
+            je do_op
+            cmp al, '-'
+            je do_op
+            cmp al, '*'
+            je do_op
+            cmp al, '/'
+            je do_op
 
-                sub al, '0'
-                movzx ecx, al
-                imul ebx, ebx, 10
-                add ebx, ecx
-                inc esi
-                jmp eval_loop
+            sub al, '0'
+            movzx ecx, al
+            imul ebx, ebx, 10
+            add ebx, ecx
+            inc esi
+            jmp eval_loop
 
-            do_op:
-                cmp dl, '+'
-                jne chk_sub
-                mov eax, finalResult
-                add eax, ebx
-                mov finalResult, eax
-                jmp set_op
-            chk_sub:
-                cmp dl, '-'
-                jne chk_mul
-                mov eax, finalResult
-                sub eax, ebx
-                mov finalResult, eax
-                jmp set_op
-            chk_mul:
-                cmp dl, '*'
-                jne chk_div
-                mov eax, finalResult
-                imul eax, ebx
-                mov finalResult, eax
-                jmp set_op
-            chk_div:
-                cmp ebx, 0
-                je show_div_zero
-                mov eax, finalResult
-                xor edx, edx
-                div ebx
-                mov finalResult, eax
-                jmp set_op
+        do_op:
+            cmp dl, '+'
+            jne chk_sub
+            mov eax, finalResult
+            add eax, ebx
+            mov finalResult, eax
+            jmp set_op
+        chk_sub:
+            cmp dl, '-'
+            jne chk_mul
+            mov eax, finalResult
+            sub eax, ebx
+            mov finalResult, eax
+            jmp set_op
+        chk_mul:
+            cmp dl, '*'
+            jne chk_div
+            mov eax, finalResult
+            imul eax, ebx
+            mov finalResult, eax
+            jmp set_op
+        chk_div:
+            cmp ebx, 0
+            je show_div_zero
+            mov eax, finalResult
+            xor edx, edx
+            div ebx
+            mov finalResult, eax
+            jmp set_op
 
-            show_div_zero:
-                invoke MessageBox, NULL, addr delendoor0, addr msgError, MB_OK
-                jmp end_if
+        show_div_zero:
+            invoke MessageBox, NULL, addr delendoor0, addr msgError, MB_OK
+            jmp end_if
 
-            set_op:
-                mov dl, [esi]
-                xor ebx, ebx
-                inc esi
-                jmp eval_loop
+        set_op:
+            mov dl, [esi]
+            xor ebx, ebx
+            inc esi
+            jmp eval_loop
 
-            eval_done:
-                cmp dl, '+'
-                jne chk_sub2
-                mov eax, finalResult
-                add eax, ebx
-                mov finalResult, eax
-                jmp to_string
-            chk_sub2:
-                cmp dl, '-'
-                jne chk_mul2
-                mov eax, finalResult
-                sub eax, ebx
-                mov finalResult, eax
-                jmp to_string
-            chk_mul2:
-                cmp dl, '*'
-                jne chk_div2
-                mov eax, finalResult
-                imul eax, ebx
-                mov finalResult, eax
-                jmp to_string
-            chk_div2:
-                cmp ebx, 0
-                je show_div_zero
-                mov eax, finalResult
-                xor edx, edx
-                div ebx
-                mov finalResult, eax
-            to_string:
-                mov ecx, finalResult
-                lea edi, resultBuffer
-                add edi, 15
-                mov byte ptr [edi], 0 ; null terminator
+        eval_done:
+            cmp dl, '+'
+            jne chk_sub2
+            mov eax, finalResult
+            add eax, ebx
+            mov finalResult, eax
+            jmp to_string
+        chk_sub2:
+            cmp dl, '-'
+            jne chk_mul2
+            mov eax, finalResult
+            sub eax, ebx
+            mov finalResult, eax
+            jmp to_string
+        chk_mul2:
+            cmp dl, '*'
+            jne chk_div2
+            mov eax, finalResult
+            imul eax, ebx
+            mov finalResult, eax
+            jmp to_string
+        chk_div2:
+            cmp ebx, 0
+            je show_div_zero
+            mov eax, finalResult
+            xor edx, edx
+            div ebx
+            mov finalResult, eax
+to_string:
+    mov ecx, finalResult
+    lea edi, resultBuffer
+    add edi, 15           ; point to end of buffer
+    mov byte ptr [edi], 0 ; null terminator
 
-                mov ebx, 10
+    mov ebx, 10
 
-                ; check if negative
-                mov eax, ecx
-                sar eax, 31           ; eax = 0 or -1
-                jz positive
-                neg ecx               ; ecx = -ecx
-                mov negativeFlag, 1   ; negative
-                jmp convert
+    ; check if negative (sign bit set)
+    mov eax, ecx
+    sar eax, 31           ; eax = 0 (positive) or -1 (negative)
+    jz positive
+    neg ecx               ; ecx = -ecx
+    mov negativeFlag, 1   ; negative
+    jmp convert
 
-            positive:
-                mov negativeFlag, 0   ; positive
+positive:
+    mov negativeFlag, 0   ; positive
 
-            convert:
-                test ecx, ecx
-                jnz convert_loop
-                dec edi
-                mov byte ptr [edi], '0'
-                jmp addsign
+convert:
+    test ecx, ecx
+    jnz convert_loop
+    dec edi
+    mov byte ptr [edi], '0'
+    jmp addsign
 
-            convert_loop:
-                mov edx, 0
-                mov eax, ecx
-                div ebx
-                add dl, '0'
-                dec edi
-                mov [edi], dl
-                mov ecx, eax
-                test eax, eax
-                jnz convert_loop
+convert_loop:
+    mov edx, 0
+    mov eax, ecx
+    div ebx               ; eax = ecx / 10, edx = ecx % 10
+    add dl, '0'
+    dec edi
+    mov [edi], dl
+    mov ecx, eax
+    test eax, eax
+    jnz convert_loop
 
-            addsign:
-                cmp negativeFlag, 0   ; negative?
-                je show_result
-                dec edi
-                mov byte ptr [edi], '-'
+addsign:
+    cmp negativeFlag, 0   ; negative?
+    je show_result
+    dec edi
+    mov byte ptr [edi], '-'
 
-            show_result:
-                invoke SetWindowText, hOutputEdit, edi
+show_result:
+    invoke SetWindowText, hOutputEdit, edi
 
         end_if:
         .endif
