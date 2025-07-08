@@ -1,7 +1,7 @@
 ; File: ReverMachine.asm
 
 ; geneer code voor Intel 80386 processor of hoger,
-  zorgt voor de win32 API
+;  zorgt voor de win32 API
 
 .386
 .model flat, stdcall
