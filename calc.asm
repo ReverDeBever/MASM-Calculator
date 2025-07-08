@@ -1,5 +1,8 @@
 ; File: ReverMachine.asm
 
+; geneer code voor Intel 80386 processor of hoger,
+  zorgt voor de win32 API
+
 .386
 .model flat, stdcall
 option casemap:none
@@ -14,6 +17,7 @@ WinMain proto :DWORD,:DWORD,:DWORD,:DWORD
 WndProc  proto :DWORD,:DWORD,:DWORD,:DWORD
 
 .const
+    ; Constante gegevens
     ClassName   db "Rever Machine", 0
     AppName     db "Rever Machine", 0
     ID_EDIT     equ 1002
@@ -37,6 +41,8 @@ WndProc  proto :DWORD,:DWORD,:DWORD,:DWORD
     ID_CBTN     equ 1019
 
 .data?
+    ; Ongeïnitialiseerde data
+
     hInstance   HINSTANCE ?
     CommandLine LPSTR ?
     hEdit       HWND ?
@@ -64,6 +70,8 @@ WndProc  proto :DWORD,:DWORD,:DWORD,:DWORD
     negativeFlag db ?
 
 .data
+    ; Geïnitialiseerde Data
+
     szEdit      db "edit", 0
     szButton    db "button", 0
     szInsert1   db "1", 0
@@ -110,14 +118,35 @@ WndProc  proto :DWORD,:DWORD,:DWORD,:DWORD
 
 .code
 start:
+    ; Startpunt van het programma
+
     invoke GetModuleHandle, NULL
+
+    ; Een uniek ID
+
     mov hInstance, eax
     invoke GetCommandLine
+
+    ; GetCommandLine is een Windows-functie die een pointer geeft naar de command line waarmee dit programma gestart is
+
     mov CommandLine, eax
     invoke WinMain, hInstance, NULL, CommandLine, SW_SHOWDEFAULT
+
+    ; Dit regelt alles wat met het venster en de gebruikersinterface te maken heeft:
+    ; het aanmaken van het venster
+    ; de knoppen en invoervelden aanmaken
+    ; de Windows message loop starten (dus dat je op knoppen kunt klikken, enz.)
+
+
+    ; Als dit stukje klaar is, dan wordt ExitProcess aangeroepen om het programma netjes af te sluiten
     invoke ExitProcess, eax
 
+
+
 WinMain proc hInst:HINSTANCE, hPrevInst:HINSTANCE, CmdLine:LPSTR, CmdShow:DWORD
+
+    ; Dit maakt een beschrijving van het venster bijv kleur, en naam
+
     LOCAL wc:WNDCLASSEX
     LOCAL msg:MSG
     LOCAL hwnd:HWND
@@ -138,6 +167,8 @@ WinMain proc hInst:HINSTANCE, hPrevInst:HINSTANCE, CmdLine:LPSTR, CmdShow:DWORD
     invoke LoadCursor, NULL, IDC_ARROW
     mov wc.hCursor, eax
 
+    ; 400 bij 400 venster
+    ; Registreer de klasse voor het venster
     invoke RegisterClassEx, addr wc
     invoke CreateWindowEx, 0, ADDR ClassName, ADDR AppName,
            WS_OVERLAPPED or WS_CAPTION or WS_SYSMENU or WS_MINIMIZEBOX,
@@ -334,6 +365,16 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             invoke lstrcat, addr editBuffer, addr symboolD
             invoke SetWindowText, hEdit, addr editBuffer
         .elseif wParam == ID_BBTN
+
+            ; Haalt de input en zet het in editBuffer
+            ; Berekent de lengte van de input
+
+            ; Als de lengte groter is dan 0, verwijdert het laatste karakter
+            ; Dat doet dec
+            ; Zet een null terminator op de laatste positie
+            ; Zet de nieuwe tekst in het invoerveld
+
+
             invoke GetWindowText, hEdit, addr editBuffer, 255
             invoke lstrlen, addr editBuffer
             .if eax > 0
@@ -345,7 +386,15 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             mov byte ptr [editBuffer], 0
             invoke SetWindowText, hEdit, addr editBuffer
 
+            ; Reset de ouptput
+
         .elseif wParam == ID_IBTN
+
+            ; Dit stukje code leest de input van de input box, Loopt door elk teken (Parsing)
+            ; Voert de berekening uit
+            ; Zet het resultaat in de output box
+            ; Geeft ook een foutmelding als er wordt gedeelt door 0
+
             invoke GetWindowText, hEdit, addr editBuffer, 255
             invoke lstrlen, addr editBuffer
             test eax, eax
@@ -357,10 +406,10 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             lea esi, editBuffer
             mov dl, '+'          ; default operator
 
-            eval_loop:
-                mov al, [esi]
+            eval_loop: ; loopt door de string
+                mov al, [esi] ; lees het volgende teken
                 cmp al, 0
-                je eval_done
+                je eval_done ; einde van de string dus klaar
 
                 cmp al, '+'
                 je do_op
@@ -371,14 +420,14 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                 cmp al, '/'
                 je do_op
 
-                sub al, '0'
+                sub al, '0' ; converteer ASCII naar integer
                 movzx ecx, al
                 imul ebx, ebx, 10
                 add ebx, ecx
                 inc esi
                 jmp eval_loop
 
-            do_op:
+            do_op: ; Als er in de loop een operator is gevonden doe dan
                 cmp dl, '+'
                 jne chk_sub
                 mov eax, finalResult
@@ -412,13 +461,13 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                 invoke MessageBox, NULL, addr delendoor0, addr msgError, MB_OK
                 jmp end_if
 
-            set_op:
+            set_op: ; Zet de operator voor de volgende iteratie
                 mov dl, [esi]
                 xor ebx, ebx
                 inc esi
                 jmp eval_loop
 
-            eval_done:
+            eval_done: ; Einde van de string, voer de laatste operatie uit
                 cmp dl, '+'
                 jne chk_sub2
                 mov eax, finalResult
@@ -446,7 +495,7 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                 xor edx, edx
                 div ebx
                 mov finalResult, eax
-            to_string:
+            to_string: ; Zet het resultaat om naar een string
                 mov ecx, finalResult
                 lea edi, resultBuffer
                 add edi, 15
@@ -458,12 +507,12 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                 mov eax, ecx
                 sar eax, 31           ; eax = 0 or -1
                 jz positive
-                neg ecx               ; ecx = -ecx
-                mov negativeFlag, 1   ; negative
+                neg ecx               ; -ecx = ecx
+                mov negativeFlag, 1   ; negatieve flag zetten
                 jmp convert
 
             positive:
-                mov negativeFlag, 0   ; positive
+                mov negativeFlag, 0   ; positive ; niet negatief
 
             convert:
                 test ecx, ecx
@@ -483,7 +532,7 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                 test eax, eax
                 jnz convert_loop
 
-            addsign:
+            addsign: ; Voeg een teken toe als het negatief is
                 cmp negativeFlag, 0   ; negative?
                 je show_result
                 dec edi
